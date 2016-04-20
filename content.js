@@ -75,7 +75,7 @@ function value(change) {
 function buttonify(el) {
 	el.className = "btn-primary";
 	el.setAttribute("font-size","60%");
-	el.setAttribute("margin-left","1px");
+	// el.setAttribute("margin-left","1px");
 }
 
 function constructSelections() {
@@ -119,15 +119,18 @@ function run() {
 	back = document.createElement("label");
 	options = document.createElement("label");
 	namer = document.createElement("label");
+	sep = document.createElement("label");
 
 	lbl.innerHTML = "";
 	sel.selectedIndex == 0;
 	incr.innerHTML = " => ";
 	decr.innerHTML = " <= ";
 	res.innerHTML = " RESET ";
-	back.innerHTML = " RESTORE ";
-	options.innerHTML = " EDIT ";
+	back.innerHTML = "RESTORE";
+	options.innerHTML = "EDIT";
 	options.setAttribute("id", "go-to-options");
+	sep.innerHTML = "|";
+	sep.style.color = "white";
 
 	bttns = [decr, incr, res, back, options];
 
@@ -152,11 +155,15 @@ function run() {
 		chrome.extension.sendRequest({ msg: "showOptions" });
 	})
 
-
 	el.appendChild(lbl);
 	el.appendChild(sel);
-	for (var i = 0; i < bttns.length; i++)
+	el.appendChild(sep.cloneNode(true));
+	for (var i = 0; i < bttns.length; i++) {
 		el.appendChild(bttns[i]);
+		if (i > 0 && i < bttns.length - 1) {
+			el.appendChild(sep.cloneNode(true));
+		}
+	}
 
 	wrap.appendChild(el);
 	wrap.appendChild(document.createElement("br"));
