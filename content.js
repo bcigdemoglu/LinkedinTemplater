@@ -12,9 +12,7 @@ var el,
 	decr,
 	res,
 	back,
-	options,
-	namer,
-	namerdiv;
+	options;
 
 //declare button array
 var bttns;
@@ -24,6 +22,15 @@ function restore() {
 	body.value = backupMessage;
 }
 
+function selectFriendIfNonPicked() {
+	radioBttns = document.querySelectorAll("#main-options > li > .radio-btn");
+	for (var i = 0; i < radioBttns.length; i++) {
+		if (radioBttns[i].checked) return;
+	}
+	// Select friend if nothing is picked
+	document.getElementById('IF-reason-iweReconnect').click();
+}
+
 function update() {
 	//get str based on selection value
 	var str = value() - 1; //correction due to default
@@ -31,7 +38,7 @@ function update() {
 	//Default message
 	if(str=="-1") {
 		body.value = defaultMessage;
-	} 
+	}
 	//Access template array in storage
 	else {
 		chrome.storage.sync.get("temps", function(res) {
@@ -45,14 +52,18 @@ function update() {
 
 function correctNames() {
 	body.value = decodeURI(body.value
-							.replace(/\[fn]/i, getVal("firstName"))
-							.replace(/\[ln]/i, getVal("lastName")));
+							.replace(/\[fn]/ig, getVal("firstName"))
+							.replace(/\[ln]/ig, getVal("lastName")));
 
+}
+
+String.prototype.Capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
 function getVal(str) {
     var v = window.location.search.match(new RegExp('(?:[\?\&]'+str+'=)([^&]+)'));
-    if(v) v[1] = v[1].replace('+',' ');
+    if(v) v[1] = v[1].replace('+',' ').Capitalize();
     return v ? v[1] : null;
 }
 
@@ -75,6 +86,7 @@ function value(change) {
 function buttonify(el) {
 	el.className = "btn-primary";
 	el.setAttribute("font-size","60%");
+	el.onmousedown = function() { return false; };
 	// el.setAttribute("margin-left","1px");
 }
 
@@ -110,29 +122,22 @@ function run() {
 	backupMessage = defaultMessage;
 
 
-	el = document.createElement("div"),
-	lbl = document.createElement("label"),
-	sel = constructSelections(),
-	incr = document.createElement("label"),
-	decr = document.createElement("label"),
+	el = document.createElement("div");
+	sel = constructSelections();
+	incr = document.createElement("label");
+	decr = document.createElement("label");
 	res = document.createElement("label");
-	back = document.createElement("label");
 	options = document.createElement("label");
-	namer = document.createElement("label");
 	sep = document.createElement("label");
 
-	lbl.innerHTML = "";
 	sel.selectedIndex == 0;
-	incr.innerHTML = " => ";
-	decr.innerHTML = " <= ";
-	res.innerHTML = " RESET ";
-	back.innerHTML = "RESTORE";
-	options.innerHTML = "EDIT";
-	options.setAttribute("id", "go-to-options");
+	incr.innerHTML = " &#x276f&#x276f&#x276f ";
+	decr.innerHTML = " &#x276e&#x276e&#x276e ";
+	options.innerHTML = " OPTIONS ";
 	sep.innerHTML = "|";
 	sep.style.color = "white";
 
-	bttns = [decr, incr, res, back, options];
+	bttns = [decr, incr, options];
 
 	for (var i = 0; i < bttns.length; i++)
 		buttonify(bttns[i]);
@@ -145,19 +150,10 @@ function run() {
 		if (value() > 0) value("dec");
 		update();
 	});
-	res.addEventListener("click", function() {
-		value("res");
-		update();
-	});
-	back.addEventListener("click", restore);
-	sel.addEventListener("change", update);
 	options.addEventListener("click", function() {
 		chrome.extension.sendRequest({ msg: "showOptions" });
 	})
 
-	el.appendChild(lbl);
-	el.appendChild(sel);
-	el.appendChild(sep.cloneNode(true));
 	for (var i = 0; i < bttns.length; i++) {
 		el.appendChild(bttns[i]);
 		if (i > 0 && i < bttns.length - 1) {
@@ -166,11 +162,6 @@ function run() {
 	}
 
 	wrap.appendChild(el);
-	wrap.appendChild(document.createElement("br"));
-	namerdiv = document.createElement("div");
-	namer.className = "btn-primary";
-	namer.innerHTML = "Click to convert [fn] to First Name and [ln] to Last Name";
-	namer.addEventListener("click", correctNames);
-	namerdiv.appendChild(namer);
-	wrap.appendChild(namerdiv);
+
+	selectFriendIfNonPicked();
 }

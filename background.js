@@ -8,6 +8,14 @@ chrome.extension.onRequest.addListener(
     }
 );
 
-chrome.runtime.onInstalled.addListener(function (object) {
+chrome.browserAction.onClicked.addListener(function (object) {
     showOptions();
+});
+
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "install"){
+        showOptions();
+    }else if(details.reason == "update"){
+        // In case necessary
+    }
 });

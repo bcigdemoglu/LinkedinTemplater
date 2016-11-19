@@ -15,7 +15,7 @@ function save_options(evt) {
             status.textContent = '';
         }, 750);
     });
-}   
+}
 
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
@@ -75,11 +75,14 @@ function createPage() {
         tempText.setAttribute("rows", "7");
         tempText.setAttribute("cols", "100");
         tempText.setAttribute("style", "width: 600px !important;")
-        tempText.innerHTML = "Click EDIT to edit your Template "+i+".\n"+
-                "Click SAVE to save your template.\n"+
-                "We take note of the character limit, so do not worry about it.\n"+
-                "[fn] becomes First Name and " +
-                "[ln] becomes Last Name automatically.";
+        tempText.innerHTML = "This is Template "+i+".\n"+
+                "Use ARROWS to move across templates.\n"+
+                "Click OPTIONS to edit templates.\n"+
+                "Click SAVE to save templates.\n"+
+                "\n[fn] becomes First Name\n"+
+                "[ln] becomes Last Name\n"+
+                "\nExample Template:\n"+
+                "Hello [fn],\nI'd like to add you to my professional network on LinkedIn.";
         pbody.appendChild(tempText);
         pbody.appendChild(savebtn.cloneNode(true));
         pbody.appendChild(status.cloneNode(true));
@@ -92,7 +95,7 @@ function createPage() {
         saveRA[butnum].addEventListener('click', save_options, false);
         saveRA[butnum].number = butnum;
     }
-    
+
 }
 
 var numTemplates = 7;
