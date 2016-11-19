@@ -1,7 +1,7 @@
 {
     "name": "Linkedin Templater",
     "description": "An ultra simple extension for using templates on Linkedin",
-    "version": "2.00",
+    "version": "2.0",
     "manifest_version": 2,
     "update_url": "https://clients2.google.com/service/update2/crx",
     "background": {
