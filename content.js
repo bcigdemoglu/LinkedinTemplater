@@ -23,7 +23,7 @@ if (window.location.href.includes("/people/invite")) {
 	// Old Linkedin
 	window.onload = run();
 }
-else if (window.location.href.includes("/in/")) {
+else {
 	// New Linkedin
 	$(document).arrive("#custom-message", function() {
     // 'this' refers to the newly created element
@@ -51,13 +51,21 @@ function update() {
 	//Default message
 	if(str=="-1") {
 		body.value = defaultMessage;
+		if ($("#custom-message").length) {
+			$("#custom-message").sendkeys(" ");
+		}
 	}
 	//Access template array in storage
 	else {
 		chrome.storage.sync.get("temps", function(res) {
 			var list = [];
 			if (res["temps"]) list = res["temps"];
-			if (list.length > str) body.value = list[str];
+			if (list.length > str) {
+				body.value = list[str].substr(0,299);
+				if ($("#custom-message").length) {
+					$("#custom-message").sendkeys(" ");
+				}
+			}
 			correctNames();
 		});
 	}

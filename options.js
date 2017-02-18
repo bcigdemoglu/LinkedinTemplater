@@ -142,7 +142,7 @@ function createPage() {
         var tempText = document.createElement("textarea");
         tempText.setAttribute("class", "form-control temp");
         tempText.setAttribute("id", "temp"+i);
-        tempText.setAttribute("maxlength", "300");
+        tempText.setAttribute("maxlength", "299");
         tempText.setAttribute("rows", "9");
         tempText.setAttribute("cols", "100");
         tempText.setAttribute("style", "width: 600px !important;")

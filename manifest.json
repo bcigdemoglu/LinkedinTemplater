@@ -20,6 +20,8 @@
                 "js/arrive.min.js",
                 "js/tether.min.js",
                 "js/bootstrap.min.js",
+                "js/bililiteRange.js",
+                "js/jquery.sendkeys.js",
                 "content.js"
             ]
         }
