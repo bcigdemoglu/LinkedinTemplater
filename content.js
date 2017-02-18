@@ -8,6 +8,7 @@ var wrap,
 var el,
 	lbl,
 	sel,
+	defT,
 	incr,
 	decr,
 	res,
@@ -15,6 +16,9 @@ var el,
 	options,
 	firstName,
 	lastName;
+
+//declare numTemplates
+var numTemplates;
 
 //declare button array
 var bttns;
@@ -51,9 +55,8 @@ function update() {
 	//Default message
 	if(str=="-1") {
 		body.value = defaultMessage;
-		if ($("#custom-message").length) {
-			$("#custom-message").sendkeys(" ");
-		}
+		$("#custom-message").sendkeys(" ");
+		return true;
 	}
 	//Access template array in storage
 	else {
@@ -62,13 +65,39 @@ function update() {
 			if (res["temps"]) list = res["temps"];
 			if (list.length > str) {
 				body.value = list[str].substr(0,299);
-				if ($("#custom-message").length) {
-					$("#custom-message").sendkeys(" ");
-				}
+				$("#custom-message").sendkeys(" ");
 			}
 			correctNames();
 		});
 	}
+	setDefaultTemplate(value());
+}
+
+function updateNumTemplates() {
+	chrome.storage.sync.get("temps", function(res) {
+			numTemplates = res["temps"].length;
+		});
+}
+
+function getDefaultTemplate() {
+	var defaultTempNum;
+	chrome.storage.sync.get("default_template", function(res) {
+			defaultTempNum = parseInt(res["default_template"]);
+			if (!defaultTempNum) {
+			defaultTempNum = 0;
+			setDefaultTemplate(0);
+		} else {
+			value(defaultTempNum);
+		}
+		update();
+	});
+}
+
+function setDefaultTemplate(num) {
+	chrome.storage.sync.set({
+		default_template: num
+		});
+	defT.setAttribute("value", num);
 }
 
 function correctNames() {
@@ -94,8 +123,10 @@ function value(change) {
 		sel.selectedIndex--;
 	} else if (change == "res") {
 		sel.selectedIndex = 0;
-	} else if (change > 0) {
-		sel.selectedIndex = change;
+	} else if (change >= 0) {
+		sel.selectedIndex = change <= numTemplates ? change : numTemplates;
+	} else if (change < 0) {
+		sel.selectedIndex = 0;
 	}
 	return sel.selectedIndex;
 }
@@ -191,7 +222,7 @@ function run() {
 
 function toTitleCase(str)
 {
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    return str.replace(/\S+/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function buttonifyV2(el) {
@@ -209,14 +240,19 @@ function updateNames() {
 }
 
 function runV2() {
+	console.log("TEKRAR BURDAYIZ");
+	updateNumTemplates();
 	wrap = document.getElementsByClassName("send-invite__actions").item(0),
 	body = document.getElementById("custom-message");
+	body.rows = 9;
+	body.style.height = "inherit";
 	defaultMessage = body.value;
 	backupMessage = defaultMessage;
 
 
 	el = document.createElement("div");
 	sel = constructSelections();
+	defT = document.createElement("input");
 	incr = document.createElement("div");
 	decr = document.createElement("div");
 	res = document.createElement("label");
@@ -224,7 +260,9 @@ function runV2() {
 
 	sel.selectedIndex == 0;
 	incr.innerHTML = " &#x276f&#x276f&#x276f ";
+	incr.setAttribute('id', "templater-incr");
 	decr.innerHTML = " &#x276e&#x276e&#x276e ";
+	incr.setAttribute('id', "templater-decr");
 	options.innerHTML = " OPTIONS ";
 
 	bttns = [decr, incr, options];
@@ -232,6 +270,15 @@ function runV2() {
 	for (var i = 0; i < bttns.length; i++)
 		buttonifyV2(bttns[i]);
 
+	defT.setAttribute('id', "templater-deft");
+	defT.className = "button-secondary-large ml3";
+	defT.setAttribute('size', "2");
+	defT.setAttribute('maxlength', "2");
+	getDefaultTemplate();
+	defT.addEventListener('change', function(){
+		value(parseInt(this.value));
+		update();
+	})
 	incr.addEventListener("click", function() {
 		value("inc");
 		update();
@@ -247,6 +294,7 @@ function runV2() {
 
 	var firstButton = wrap.firstChild;
 
+	wrap.insertBefore(defT, firstButton);
 	for (var i = 0; i < bttns.length; i++) {
 		wrap.insertBefore(bttns[i], firstButton);
 	}
