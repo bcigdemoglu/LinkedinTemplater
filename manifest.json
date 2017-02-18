@@ -1,5 +1,6 @@
 {
     "name": "Linkedin Templater",
+    "short_name": "LiTempBC",
     "description": "An ultra simple extension for using templates on Linkedin",
     "version": "3.0",
     "manifest_version": 2,
@@ -26,6 +27,7 @@
     "permissions": [
         "storage"
     ],
+    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
     "browser_action": {
     "default_icon": "icon128.png"
     },
