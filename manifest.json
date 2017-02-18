@@ -1,7 +1,7 @@
 {
     "name": "Linkedin Templater",
     "description": "An ultra simple extension for using templates on Linkedin",
-    "version": "2.0",
+    "version": "3.0",
     "manifest_version": 2,
     "update_url": "https://clients2.google.com/service/update2/crx",
     "background": {
@@ -12,10 +12,13 @@
     "content_scripts": [
         {
             "matches": [
-                "https://www.linkedin.com/people/invite*"
+                "https://www.linkedin.com/*"
             ],
             "js": [
-                "jquery-2.2.3.min.js",
+                "js/jquery-2.2.3.min.js",
+                "js/arrive.min.js",
+                "js/tether.min.js",
+                "js/bootstrap.min.js",
                 "content.js"
             ]
         }
