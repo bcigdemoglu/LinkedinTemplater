@@ -1,304 +1,186 @@
-//declare message holders
-var wrap,
-	body,
-	defaultMessage,
-	backupMessage;
+/* global $ chrome */
+/*eslint no-undef: "error"*/
+/*eslint-env browser*/
+
+/* eslint-disable no-undef */
+const helpers = {
+    beautify,
+    correctNames,
+    constructSelector,
+    logAction,
+};
+/* eslint-enable no-alert */
+
+//declare message holder
+let defaultMessage;
 
 //declare buttons
-var el,
-	lbl,
-	sel,
-	defT,
-	incr,
-	decr,
-	res,
-	back,
-	options,
-	firstName,
-	lastName;
+let sel,
+    defT,
+    incr,
+    decr,
+    options;
+
+//declare first and last name
+let firstName,
+    lastName;
 
 //declare numTemplates
-var numTemplates;
-
-//declare button array
-var bttns;
-
-if (window.location.href.includes("/people/invite")) {
-	// Old Linkedin
-	window.onload = run();
-}
-else {
-	// New Linkedin
-	$(document).arrive("#custom-message", function() {
-    // 'this' refers to the newly created element
-    runV2();
-	});
-}
-
-function restore() {
-	body.value = backupMessage;
-}
-
-function selectFriendIfNonPicked() {
-	radioBttns = document.querySelectorAll("#main-options > li > .radio-btn");
-	for (var i = 0; i < radioBttns.length; i++) {
-		if (radioBttns[i].checked) return;
-	}
-	// Select friend if nothing is picked
-	document.getElementById('IF-reason-iweReconnect').click();
-}
+let numTemplates;
 
 function update() {
-	//get str based on selection value
-	var str = value() - 1; //correction due to default
-	backupMessage = body.value;
-	//Default message
-	if(str=="-1") {
-		body.value = defaultMessage;
-		$("#custom-message").sendkeys(" ");
-		return true;
-	}
-	//Access template array in storage
-	else {
-		chrome.storage.sync.get("temps", function(res) {
-			var list = [];
-			if (res["temps"]) list = res["temps"];
-			if (list.length > str) {
-				body.value = list[str].substr(0,299);
-				$("#custom-message").sendkeys(" ");
-			}
-			correctNames();
-		});
-	}
-	setDefaultTemplate(value());
+    if(getSelect() === 0) {
+        //Default message
+        $("#custom-message").val(defaultMessage);
+        $("#custom-message").sendkeys(" ");
+        return true;
+    }
+    else {
+        //Access template array in storage
+        const index = getSelect() - 1;
+        chrome.storage.sync.get("temps", function(res) {
+            const temps = res.temps || [];
+            if (temps[index]) {
+                $("#custom-message").val(temps[index].substr(0,299));
+                $("#custom-message").sendkeys(" ");
+            }
+            helpers.correctNames(firstName, lastName);
+        });
+    }
+    setDefaultTemplate(getSelect());
+    helpers.logAction("Selected template " + getSelect());
 }
 
 function updateNumTemplates() {
-	chrome.storage.sync.get("temps", function(res) {
-			numTemplates = res["temps"].length;
-		});
+    chrome.storage.sync.get("temps", function(res) {
+        numTemplates = res.temps ? res.temps.length : 0;
+    });
 }
 
 function getDefaultTemplate() {
-	var defaultTempNum;
-	chrome.storage.sync.get("default_template", function(res) {
-			defaultTempNum = parseInt(res["default_template"]);
-			if (!defaultTempNum) {
-			defaultTempNum = 0;
-			setDefaultTemplate(0);
-		} else {
-			value(defaultTempNum);
-		}
-		update();
-	});
+    chrome.storage.sync.get("default_template", function(res) {
+        if (res.default_template) {
+            select(parseInt(res.default_template));
+        }
+    });
 }
 
 function setDefaultTemplate(num) {
-	chrome.storage.sync.set({
-		default_template: num
-		});
-	defT.setAttribute("value", num);
+    chrome.storage.sync.set({
+        default_template: num
+    });
+    $(`#${defT.id}`).val(num);
 }
 
-function correctNames() {
-	body.value = decodeURI(body.value
-							.replace(/\[fn]/ig, firstName)
-							.replace(/\[ln]/ig, lastName));
-
+function select(change) {
+    if (change === "inc" &&
+        sel.selectedIndex + 1 <= numTemplates) {
+        sel.selectedIndex++;
+    } else if (change === "dec" && 
+               sel.selectedIndex > 0) {
+        sel.selectedIndex--;
+    } else if ($.type(change) === "number" &&
+               change >= 0) {
+        sel.selectedIndex = (change <= numTemplates) ? change : numTemplates;
+    } else if ($.type(change) === "number" &&
+               change < 0) {
+        sel.selectedIndex = 0;
+    } else {
+        return false;
+    }
+    update();
+    return true;
 }
 
-function getVal(str) {
-    var v = window.location.search.match(new RegExp('(?:[\?\&]'+str+'=)([^&]+)'));
-    if(v) v[1] = toTitleCase(v[1].replace('+',' '));
-    return v ? v[1] : null;
-}
-
-function value(change) {
-	if (change == "inc") {
-		var max = sel.selectedIndex;
-		sel.selectedIndex++;
-		if(sel.selectedIndex == "-1")
-			sel.selectedIndex = max;
-	} else if (change == "dec") {
-		sel.selectedIndex--;
-	} else if (change == "res") {
-		sel.selectedIndex = 0;
-	} else if (change >= 0) {
-		sel.selectedIndex = change <= numTemplates ? change : numTemplates;
-	} else if (change < 0) {
-		sel.selectedIndex = 0;
-	}
-	return sel.selectedIndex;
-}
-
-function buttonify(el) {
-	el.className = "btn-primary";
-	el.setAttribute("font-size","60%");
-	el.onmousedown = function() { return false; };
-	// el.setAttribute("margin-left","1px");
-}
-
-function constructSelections() {
-	var sel = document.createElement("select");
-	sel.setAttribute("id","sel");
-
-	var defOpt = document.createElement("option");
-	defOpt.setAttribute("value","0");
-	defOpt.setAttribute("name","default");
-	defOpt.innerHTML = "default";
-	sel.appendChild(defOpt);
-
-	chrome.storage.sync.get("temps", function(res) {
-		var list = [];
-		if (res["temps"]) list = res["temps"];
-		for(var i = 1; i <= list.length; i++) {
-			var opt = document.createElement("option");
-			//Since 0 is allocated for default
-			opt.setAttribute("value", i);
-			//Assign name here
-			opt.innerHTML = "Template "+i;
-			sel.appendChild(opt);
-		}
-	});
-	return sel;
-}
-
-function run() {
-	wrap = document.getElementsByClassName("wrap").item(0),
-	body = document.getElementById("greeting-iweReconnect");
-	defaultMessage = body.value;
-	backupMessage = defaultMessage;
-
-
-	el = document.createElement("div");
-	sel = constructSelections();
-	incr = document.createElement("label");
-	decr = document.createElement("label");
-	res = document.createElement("label");
-	options = document.createElement("label");
-	sep = document.createElement("label");
-
-	sel.selectedIndex == 0;
-	incr.innerHTML = " &#x276f&#x276f&#x276f ";
-	decr.innerHTML = " &#x276e&#x276e&#x276e ";
-	options.innerHTML = " OPTIONS ";
-	sep.innerHTML = "|";
-	sep.style.color = "white";
-
-	bttns = [decr, incr, options];
-
-	for (var i = 0; i < bttns.length; i++)
-		buttonify(bttns[i]);
-
-	incr.addEventListener("click", function() {
-		value("inc");
-		update();
-	});
-	decr.addEventListener("click", function() {
-		if (value() > 0) value("dec");
-		update();
-	});
-	options.addEventListener("click", function() {
-		chrome.extension.sendRequest({ msg: "showOptions" });
-	})
-
-	for (var i = 0; i < bttns.length; i++) {
-		el.appendChild(bttns[i]);
-		if (i > 0 && i < bttns.length - 1) {
-			el.appendChild(sep.cloneNode(true));
-		}
-	}
-
-	wrap.appendChild(el);
-
-	selectFriendIfNonPicked();
-
-	firstName = getVal("firstName");
-	lastName = getVal("lastName");
-
-}
-
-// NEW METHODS
-
-function toTitleCase(str)
-{
-    return str.replace(/\S+/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
-
-function buttonifyV2(el) {
-	el.className = "button-secondary-large ml3";
-	el.onmousedown = function() { return false; };
-	// el.setAttribute("margin-left","1px");
+function getSelect() {
+    return sel.selectedIndex;
 }
 
 function updateNames() {
-		var namesSelector = document.querySelector("head > title").innerHTML;
-		var nameRegexp = /(\S+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
-    var names = nameRegexp.exec(namesSelector);
+    function toTitleCase(str) {
+        return str.replace(/\S+/g, (txt) => {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+
+    const namesSelector = document.querySelector("head > title").innerHTML;
+    const nameRegexp = /(\S+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
+    const names = nameRegexp.exec(namesSelector);
     firstName = toTitleCase(names[1]);
     lastName = toTitleCase(names[2]);
 }
 
 function runV2() {
-	console.log("TEKRAR BURDAYIZ");
-	updateNumTemplates();
-	wrap = document.getElementsByClassName("send-invite__actions").item(0),
-	body = document.getElementById("custom-message");
-	body.rows = 9;
-	body.style.height = "inherit";
-	defaultMessage = body.value;
-	backupMessage = defaultMessage;
+    updateNumTemplates();
+    const body = document.getElementById("custom-message");
+    body.rows = 10;
+    body.style.height = "inherit";
 
+    // Set default message
+    defaultMessage = body.value;
+    
+    sel = document.createElement("select");
+    constructSelector(sel);
+    
+    defT = document.createElement("input");
+    incr = document.createElement("div");
+    decr = document.createElement("div");
+    options = document.createElement("div");
+    
+    defT.setAttribute("id", "templater-deft");
+    defT.setAttribute("size", "2");
+    defT.setAttribute("maxlength", "2");
+    
+    incr.setAttribute("id", "templater-incr");
+    incr.innerHTML = "&#x276f&#x276f&#x276f";
+    
+    decr.setAttribute("id", "templater-decr");
+    decr.innerHTML = "&#x276e&#x276e&#x276e";
+    
+    options.setAttribute("id", "templater-opts");
+    options.innerHTML = "OPTS";
+    
+    getDefaultTemplate();
+    defT.addEventListener("change", function(){
+        select(parseInt(this.value));
+    });
+    incr.addEventListener("click", function() {
+        select("inc");
+    });
+    decr.addEventListener("click", function() {
+        select("dec");
+    });
+    options.addEventListener("click", function() {
+        chrome.extension.sendRequest({ msg: "showOptions" });
+    });
+    
+    const bttns = [options, defT, decr, incr];
+    const wrap = document.getElementsByClassName("send-invite__actions").item(0);
+    const firstButton = wrap.firstChild;
+    bttns.forEach(function (el) {
+        if (el !== defT) {
+            el.onmousedown = () => false;
+        }
+        helpers.beautify(el);
+        wrap.insertBefore(el, firstButton);
+    });
 
-	el = document.createElement("div");
-	sel = constructSelections();
-	defT = document.createElement("input");
-	incr = document.createElement("div");
-	decr = document.createElement("div");
-	res = document.createElement("label");
-	options = document.createElement("div");
+    // If "CLOSE" is clicked
+    $(".send-invite__actions button.button-secondary-large-muted").on( "click", function() {
+        bttns.forEach((el) => $(`#${el.id}`).remove());
+        $(`#${sel.id}`).remove();
+        helpers.logAction("Cancelled invite with template " + getSelect());
+    });
 
-	sel.selectedIndex == 0;
-	incr.innerHTML = " &#x276f&#x276f&#x276f ";
-	incr.setAttribute('id', "templater-incr");
-	decr.innerHTML = " &#x276e&#x276e&#x276e ";
-	incr.setAttribute('id', "templater-decr");
-	options.innerHTML = " OPTIONS ";
+    // If "SEND INVITATION" is clicked
+    $(".send-invite__actions button.button-primary-large").on( "click", function() {
+        helpers.logAction("Invited with template " + getSelect());
+    });
 
-	bttns = [decr, incr, options];
-
-	for (var i = 0; i < bttns.length; i++)
-		buttonifyV2(bttns[i]);
-
-	defT.setAttribute('id', "templater-deft");
-	defT.className = "button-secondary-large ml3";
-	defT.setAttribute('size', "2");
-	defT.setAttribute('maxlength', "2");
-	getDefaultTemplate();
-	defT.addEventListener('change', function(){
-		value(parseInt(this.value));
-		update();
-	})
-	incr.addEventListener("click", function() {
-		value("inc");
-		update();
-	});
-	decr.addEventListener("click", function() {
-		if (value() > 0) value("dec");
-		update();
-	});
-	options.addEventListener("click", function() {
-		chrome.extension.sendRequest({ msg: "showOptions" });
-	})
-	options.className = "button-secondary-large ml3 mr3";
-
-	var firstButton = wrap.firstChild;
-
-	wrap.insertBefore(defT, firstButton);
-	for (var i = 0; i < bttns.length; i++) {
-		wrap.insertBefore(bttns[i], firstButton);
-	}
-	updateNames();
+    updateNames();
 }
 
-// END OF NEW METHODS
+$(document).arrive("#custom-message", function() {
+    runV2();
+});
+

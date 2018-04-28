@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // insert characters in a textarea or text input field
 // special characters are enclosed in {}; use {{} for the { character itself
 // documentation: http://bililite.com/blog/2008/08/20/the-fnsendkeys-plugin/

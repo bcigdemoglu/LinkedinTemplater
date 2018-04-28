@@ -2,12 +2,14 @@
     "name": "Linkedin Templater",
     "short_name": "LiTempBC",
     "description": "An ultra simple extension for using templates on Linkedin",
-    "version": "3.2",
+    "version": "4.0",
     "manifest_version": 2,
     "update_url": "https://clients2.google.com/service/update2/crx",
     "background": {
         "scripts": [
-            "/background.js"
+            "js/firebase.js",
+            "js/guid.js",
+            "background.js"
         ]
     },
     "content_scripts": [
@@ -22,23 +24,33 @@
                 "js/bootstrap.min.js",
                 "js/bililiteRange.js",
                 "js/jquery.sendkeys.js",
+                "js/helpers.js",
                 "content.js"
             ]
         }
     ],
     "permissions": [
-        "storage"
+        "storage",
+        "identity",
+        "downloads"
     ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
     "browser_action": {
-    "default_icon": "icon128.png"
+        "default_icon": "icon128.png"
     },
-    "icons": { "16": "icon16.png",
+    "icons": { "16": "icon16.png", 
                "48": "icon48.png",
               "128": "icon128.png" },
     "options_page": "options.html",
     "options_ui": {
-    "page": "options.html",
-    "chrome_style": true
-  }
+        "page": "options.html",
+        "chrome_style": true
+    },
+    "oauth2": {
+        "client_id": "jfhnijpfdeddconibjjjmlboahkiback",
+        "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+        ]
+    }
 }
