@@ -4,186 +4,211 @@
 
 /* eslint-disable no-undef */
 const helpers = {
-    beautify,
-    correctNames,
-    constructSelector,
-    logAction,
+  beautify,
+  correctNames,
+  constructSelector,
+  logAction,
 };
 /* eslint-enable no-alert */
+
+const buttonIDs = {
+  defT: "templater-deft",
+  opts: "templater-opts",
+  incr: "templater-incr",
+  decr: "templater-decr",
+};
+
+const button = {
+  defT: () => $(`#${buttonIDs.defT}`),
+  opts: () => $(`#${buttonIDs.opts}`),
+  incr: () => $(`#${buttonIDs.incr}`),
+  decr: () => $(`#${buttonIDs.decr}`),
+};
 
 //declare message holder
 let defaultMessage;
 
 //declare buttons
-let sel,
-    defT,
-    incr,
-    decr,
-    options;
+let sel;
 
 //declare first and last name
 let firstName,
-    lastName;
+  lastName;
 
 //declare numTemplates
 let numTemplates;
 
 function update() {
-    if(getSelect() === 0) {
-        //Default message
-        $("#custom-message").val(defaultMessage);
+  if (getSelect() === 0) {
+    //Default message
+    $("#custom-message").val(defaultMessage);
+    $("#custom-message").sendkeys(" ");
+    button.defT().val(getSelect());
+    return true;
+  }
+  else {
+    //Access template array in storage
+    const index = getSelect() - 1;
+    chrome.storage.sync.get("temps", function (res) {
+      const temps = res.temps || [];
+      if (temps[index]) {
+        $("#custom-message").val(temps[index].substr(0, 299));
         $("#custom-message").sendkeys(" ");
-        return true;
-    }
-    else {
-        //Access template array in storage
-        const index = getSelect() - 1;
-        chrome.storage.sync.get("temps", function(res) {
-            const temps = res.temps || [];
-            if (temps[index]) {
-                $("#custom-message").val(temps[index].substr(0,299));
-                $("#custom-message").sendkeys(" ");
-            }
-            helpers.correctNames(firstName, lastName);
-        });
-    }
-    setDefaultTemplate(getSelect());
-    helpers.logAction("Selected template " + getSelect());
+      }
+      helpers.correctNames(firstName, lastName);
+    });
+  }
+  setDefaultTemplate(getSelect());
+  helpers.logAction("Selected template " + getSelect());
 }
 
 function updateNumTemplates() {
-    chrome.storage.sync.get("temps", function(res) {
-        numTemplates = res.temps ? res.temps.length : 0;
-    });
+  chrome.storage.sync.get("temps", function (res) {
+    numTemplates = res.temps ? res.temps.length : 0;
+  });
 }
 
 function getDefaultTemplate() {
-    chrome.storage.sync.get("default_template", function(res) {
-        if (res.default_template) {
-            select(parseInt(res.default_template));
-        }
-    });
+  chrome.storage.sync.get("default_template", function (res) {
+    if (res.default_template) {
+      select(parseInt(res.default_template));
+    }
+  });
 }
 
 function setDefaultTemplate(num) {
-    chrome.storage.sync.set({
-        default_template: num
-    });
-    $(`#${defT.id}`).val(num);
+  chrome.storage.sync.set({
+    default_template: num
+  });
+  button.defT().val(num);
 }
 
 function select(change) {
-    if (change === "inc" &&
-        sel.selectedIndex + 1 <= numTemplates) {
-        sel.selectedIndex++;
-    } else if (change === "dec" && 
-               sel.selectedIndex > 0) {
-        sel.selectedIndex--;
-    } else if ($.type(change) === "number" &&
-               change >= 0) {
-        sel.selectedIndex = (change <= numTemplates) ? change : numTemplates;
-    } else if ($.type(change) === "number" &&
-               change < 0) {
-        sel.selectedIndex = 0;
-    } else {
-        return false;
-    }
-    update();
-    return true;
+  if (change === "inc" &&
+    sel.selectedIndex + 1 <= numTemplates) {
+    sel.selectedIndex++;
+  } else if (change === "dec" &&
+    sel.selectedIndex > 0) {
+    sel.selectedIndex--;
+  } else if ($.type(change) === "number" &&
+    change >= 0) {
+    sel.selectedIndex = (change <= numTemplates) ? change : numTemplates;
+  } else if ($.type(change) === "number" &&
+    change < 0) {
+    sel.selectedIndex = 0;
+  } else {
+    return false;
+  }
+  update();
+  return true;
 }
 
 function getSelect() {
-    return sel.selectedIndex;
+  return sel.selectedIndex;
 }
 
 function updateNames() {
-    function toTitleCase(str) {
-        return str.replace(/\S+/g, (txt) => {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
-    }
+  function toTitleCase(str) {
+    return str.replace(/\S+/g, (txt) => {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  }
 
-    const namesSelector = document.querySelector("head > title").innerHTML;
-    const nameRegexp = /([a-zA-Z]+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
-    const names = nameRegexp.exec(namesSelector);
-    firstName = toTitleCase(names[1]);
-    lastName = toTitleCase(names[2]);
+  const namesSelector = document.querySelector("head > title").innerHTML;
+  const nameRegexp = /([a-zA-Z]+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
+  const names = nameRegexp.exec(namesSelector);
+  firstName = toTitleCase(names[1]);
+  lastName = toTitleCase(names[2]);
 }
 
 function constructButtons() {
-    sel = document.createElement("select");
-    constructSelector(sel);
-    
-    options = document.createElement("div");
-    options.setAttribute("id", "templater-opts");
-    options.innerHTML = "Edit Templates";
+  const wrap = document.getElementsByClassName("send-invite__actions").item(0);
+  sel = document.createElement("select");
+  constructSelector(sel);
 
-    defT = document.createElement("input");
-    defT.setAttribute("id", "templater-deft");
-    defT.setAttribute("size", "2");
-    defT.setAttribute("maxlength", "2");
+  // Add line break
+  const breaks = $("<br>", {
+    id: "templater-break",
+  });
 
-    decr = document.createElement("div");
-    decr.setAttribute("id", "templater-decr");
-    decr.innerHTML = "&#x276e&#x276e&#x276e Prev";
+  const opts = $("<div/>", {
+    id: buttonIDs.opts,
+    text: "Edit Templates",
+    on: {
+      mousedown: () => false,
+      click: () => chrome.extension.sendRequest({ msg: "showOptions" }),
+    },
+  });
 
-    incr = document.createElement("div");
-    incr.setAttribute("id", "templater-incr");
-    incr.innerHTML = "Next &#x276f&#x276f&#x276f";
+  const defT = $("<input/>", {
+    id: buttonIDs.defT,
+    maxlength: "2",
+    on: {
+      change: () => select(parseInt(button.defT().val())),
+    },
+    prop: {
+      size: 2,
+    },
+  });
 
-    const buttons = [options, defT, decr, incr];
-    const wrap = document.getElementsByClassName("send-invite__actions").item(0);
-    // Add line break
-    $("<br>", {
-        css: { "line-height" : $(".button-secondary-large").css( "line-height" ) }
-    }).insertAfter(wrap.lastChild);
-    buttons.forEach((el) => {
-        if (el !== defT) {
-            el.onmousedown = () => false;
-        }
-        helpers.beautify(el);
-        $(el).insertAfter(wrap.lastChild);
-    });
+  const decr = $("<div/>", {
+    id: buttonIDs.decr,
+    text: "❮❮❮ Prev",
+    on: {
+      mousedown: () => false,
+      click: () => select("dec"),
+    },
+  });
 
-    defT.addEventListener("change", () => select(parseInt(this.value)));
-    incr.addEventListener("click", () => select("inc"));
-    decr.addEventListener("click", () => select("dec"));
-    options.addEventListener("click", () => {
-        chrome.extension.sendRequest({ msg: "showOptions" });
-    });
+  const incr = $("<div/>", {
+    id: buttonIDs.incr,
+    text: "Next ❯❯❯",
+    on: {
+      mousedown: () => false,
+      click: () => select("inc"),
+    },
+  });
 
-    return buttons;
+  // Grab values from "MORE..." button
+  const originalEl = $(".button-secondary-large-muted");
+  const buttons = [breaks, opts, defT, decr, incr];
+  buttons.forEach((el) => {
+    helpers.beautify(el, originalEl);
+    el.insertAfter(wrap.lastChild);
+  });
+
+  return buttons;
 }
 
 function runV2() {
-    updateNumTemplates();
-    const body = document.getElementById("custom-message");
-    body.rows = 10;
-    body.style.height = "inherit";
+  updateNumTemplates();
+  const body = document.getElementById("custom-message");
+  body.rows = 10;
+  body.style.height = "inherit";
 
-    // Set default message
-    defaultMessage = body.value;
+  // Set default message
+  defaultMessage = body.value;
 
-    const buttons = constructButtons();
-    getDefaultTemplate();
+  const buttons = constructButtons();
+  getDefaultTemplate();
 
-    // If "CLOSE" is clicked
-    const cancelButton = $(".send-invite__actions button.button-secondary-large-muted");
-    cancelButton.on( "click", () => {
-        buttons.forEach((el) => $(`#${el.id}`).remove());
-        $(`#${sel.id}`).remove();
-        helpers.logAction("Cancelled invite with template " + getSelect());
-    });
+  // If "CANCEL" is clicked
+  const cancelButton = $(".send-invite__actions button.button-secondary-large-muted");
+  cancelButton.on("click", () => {
+    buttons.forEach( el => el.remove() );
+    $(sel).remove();
+    helpers.logAction("Cancelled invite with template " + getSelect());
+  });
 
-    // If "SEND INVITATION" is clicked
-    $(".send-invite__actions button.button-primary-large").on( "click", function() {
-        helpers.logAction("Invited with template " + getSelect());
-    });
+  // If "SEND INVITATION" is clicked
+  $(".send-invite__actions button.button-primary-large").on("click", function () {
+    helpers.logAction("Invited with template " + getSelect());
+  });
 
-    updateNames();
+  updateNames();
 }
 
-$(document).arrive("#custom-message", function() {
-    runV2();
+$(document).arrive("#custom-message", function () {
+  runV2();
 });
 
