@@ -1,0 +1,23 @@
+{
+  "name": "linkedintemplater",
+  "version": "4.0.0",
+  "description": "An ultra simple extension for using templates on Linkedin",
+  "main": "content.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mbugrahanc/LinkedinTemplater.git"
+  },
+  "keywords": [
+    "Linkedin",
+    "Templater"
+  ],
+  "author": "mbugrahanc",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mbugrahanc/LinkedinTemplater/issues"
+  },
+  "homepage": "https://github.com/mbugrahanc/LinkedinTemplater#readme"
+}
