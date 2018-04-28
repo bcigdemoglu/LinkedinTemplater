@@ -110,6 +110,51 @@ function updateNames() {
     lastName = toTitleCase(names[2]);
 }
 
+function constructButtons() {
+    sel = document.createElement("select");
+    constructSelector(sel);
+    
+    options = document.createElement("div");
+    options.setAttribute("id", "templater-opts");
+    options.innerHTML = "Templater Options";
+
+    defT = document.createElement("input");
+    defT.setAttribute("id", "templater-deft");
+    defT.setAttribute("size", "2");
+    defT.setAttribute("maxlength", "2");
+
+    decr = document.createElement("div");
+    decr.setAttribute("id", "templater-decr");
+    decr.innerHTML = "&#x276e&#x276e&#x276e Prev";
+
+    incr = document.createElement("div");
+    incr.setAttribute("id", "templater-incr");
+    incr.innerHTML = "Next &#x276f&#x276f&#x276f";
+
+    const buttons = [options, defT, decr, incr];
+    const wrap = document.getElementsByClassName("send-invite__actions").item(0);
+    // Add line break
+    $("<br>", {
+        css: { "line-height" : $(".button-secondary-large").css( "line-height" ) }
+    }).insertAfter(wrap.lastChild);
+    buttons.forEach((el) => {
+        if (el !== defT) {
+            el.onmousedown = () => false;
+        }
+        helpers.beautify(el);
+        $(el).insertAfter(wrap.lastChild);
+    });
+
+    defT.addEventListener("change", () => select(parseInt(this.value)));
+    incr.addEventListener("click", () => select("inc"));
+    decr.addEventListener("click", () => select("dec"));
+    options.addEventListener("click", () => {
+        chrome.extension.sendRequest({ msg: "showOptions" });
+    });
+
+    return buttons;
+}
+
 function runV2() {
     updateNumTemplates();
     const body = document.getElementById("custom-message");
@@ -118,56 +163,14 @@ function runV2() {
 
     // Set default message
     defaultMessage = body.value;
-    
-    sel = document.createElement("select");
-    constructSelector(sel);
-    
-    defT = document.createElement("input");
-    incr = document.createElement("div");
-    decr = document.createElement("div");
-    options = document.createElement("div");
-    
-    defT.setAttribute("id", "templater-deft");
-    defT.setAttribute("size", "2");
-    defT.setAttribute("maxlength", "2");
-    
-    incr.setAttribute("id", "templater-incr");
-    incr.innerHTML = "&#x276f&#x276f&#x276f";
-    
-    decr.setAttribute("id", "templater-decr");
-    decr.innerHTML = "&#x276e&#x276e&#x276e";
-    
-    options.setAttribute("id", "templater-opts");
-    options.innerHTML = "OPTS";
-    
+
+    const buttons = constructButtons();
     getDefaultTemplate();
-    defT.addEventListener("change", function(){
-        select(parseInt(this.value));
-    });
-    incr.addEventListener("click", function() {
-        select("inc");
-    });
-    decr.addEventListener("click", function() {
-        select("dec");
-    });
-    options.addEventListener("click", function() {
-        chrome.extension.sendRequest({ msg: "showOptions" });
-    });
-    
-    const bttns = [options, defT, decr, incr];
-    const wrap = document.getElementsByClassName("send-invite__actions").item(0);
-    const firstButton = wrap.firstChild;
-    bttns.forEach(function (el) {
-        if (el !== defT) {
-            el.onmousedown = () => false;
-        }
-        helpers.beautify(el);
-        wrap.insertBefore(el, firstButton);
-    });
 
     // If "CLOSE" is clicked
-    $(".send-invite__actions button.button-secondary-large-muted").on( "click", function() {
-        bttns.forEach((el) => $(`#${el.id}`).remove());
+    const cancelButton = $(".send-invite__actions button.button-secondary-large-muted");
+    cancelButton.on( "click", () => {
+        buttons.forEach((el) => $(`#${el.id}`).remove());
         $(`#${sel.id}`).remove();
         helpers.logAction("Cancelled invite with template " + getSelect());
     });

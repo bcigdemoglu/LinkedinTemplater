@@ -2,9 +2,15 @@
 /* eslint-disable no-unused-vars */
 
 function beautify(el) {
-    el.className = "button-secondary-small";
-    el.style.lineHeight = $(".button-secondary-large").css( "line-height" );
-    el.style.height = $(".button-secondary-large").css( "height" );
+    el.className = "button-secondary-large";
+    const originalEl = $(".button-secondary-large");
+    el.style.lineHeight = originalEl.css( "line-height" );
+    el.style.height = originalEl.css( "height" );
+    el.style.marginRight = originalEl.css( "margin-right" );
+    const newColor = "darkred";
+    el.style.color = newColor;
+    const hexColorRE = /^rgba?\([\d]+, [\d]+, [\d]+\)/;
+    el.style.boxShadow = originalEl.css( "box-shadow" ).replace(hexColorRE, newColor);
 }
 
 function correctNames(firstName, lastName) {

@@ -2,7 +2,7 @@
     "name": "Linkedin Templater",
     "short_name": "LiTempBC",
     "description": "An ultra simple extension for using templates on Linkedin",
-    "version": "4.0",
+    "version": "4.0.1",
     "manifest_version": 2,
     "update_url": "https://clients2.google.com/service/update2/crx",
     "background": {
