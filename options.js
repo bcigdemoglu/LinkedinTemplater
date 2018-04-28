@@ -91,7 +91,7 @@ function restore_options() {
     });
     $("#export").click(export_templates);
     $("#tellus").click(() => 
-        location.href="https://chrome.google.com/webstore/detail/linkedin-templater/jfhnijpfdeddconibjjjmlboahkiback/support");
+        location.href="https://chrome.google.com/webstore/detail/linkedin-templater/jfhnijpfdeddconibjjjmlboahkiback/reviews");
 }
 
 function getTemplateList() {
@@ -105,10 +105,18 @@ function getTemplateList() {
 
 function createPage() {
     var contain = document.getElementById("templater");
-    // Copy save button
+    // Clone save button
     var savebtn = document.getElementById("save").cloneNode(true);
     savebtn.removeAttribute("id");
     document.getElementById("save").remove();
+    // Clone add first name button
+    const fnbtn = document.getElementById("fn").cloneNode(true);
+    fnbtn.removeAttribute("id");
+    document.getElementById("fn").remove();
+    // Clone add last name button
+    const lnbtn = document.getElementById("ln").cloneNode(true);
+    lnbtn.removeAttribute("id");
+    document.getElementById("ln").remove();
     // Copy separator
     var separator = document.getElementById("sep").cloneNode(true);
     separator.removeAttribute("id");
@@ -135,26 +143,31 @@ function createPage() {
         tempText.setAttribute("rows", "9");
         tempText.setAttribute("cols", "100");
         tempText.setAttribute("style", "width: 600px !important;");
-        tempText.innerHTML = "This is Template "+i+".\n"+
-                "Use ARROWS to move across templates.\n"+
-                "Click OPTIONS to edit templates.\n"+
-                "Click SAVE to save templates.\n"+
-                "[fn] becomes First Name\n"+
-                "[ln] becomes Last Name\n"+
-                "Example Template:\n"+
-                "Hello [fn],\nI'd like to add you to my professional network on LinkedIn.";
+        tempText.value = 
+            "Hello [fn],\nI'd like to add you to my professional network on LinkedIn.";
         pbody.appendChild(tempText);
         pbody.appendChild(savebtn.cloneNode(true));
+        pbody.appendChild(fnbtn.cloneNode(true));
+        pbody.appendChild(lnbtn.cloneNode(true));
         pbody.appendChild(status.cloneNode(true));
         pbody.appendChild(separator.cloneNode(true));
         ppri.appendChild(pbody);
         contain.appendChild(ppri);
     }
 
-    var saveRA = document.getElementsByClassName("save");
-    for (var butnum = 0; butnum < saveRA.length; butnum++) {
+    const saveRA = document.getElementsByClassName("save");
+    const fnbtnRA = document.getElementsByClassName("fnbtn");
+    const lnbtnRA = document.getElementsByClassName("lnbtn");
+    for (var butnum = 0; butnum < numTemplates; butnum++) {
         saveRA[butnum].addEventListener("click", save_options, false);
         saveRA[butnum].number = butnum;
+        const tempText = document.getElementById(`temp${butnum+1}`);
+        $(fnbtnRA[butnum]).on("click", () => {
+            tempText.value = tempText.value + "[fn]";
+        });
+        $(lnbtnRA[butnum]).on("click", () => {
+            tempText.value = tempText.value + "[ln]";
+        });
     }
     $("#templater").css("overflow-y", "scroll");
     $("#templater").height($("#templater").children().height()*175/100);

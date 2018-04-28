@@ -104,7 +104,7 @@ function updateNames() {
     }
 
     const namesSelector = document.querySelector("head > title").innerHTML;
-    const nameRegexp = /(\S+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
+    const nameRegexp = /([a-zA-Z]+(?:\s?\S*?)*?)\s(\S*) +\| LinkedIn$/g;
     const names = nameRegexp.exec(namesSelector);
     firstName = toTitleCase(names[1]);
     lastName = toTitleCase(names[2]);
@@ -116,7 +116,7 @@ function constructButtons() {
     
     options = document.createElement("div");
     options.setAttribute("id", "templater-opts");
-    options.innerHTML = "Templater Options";
+    options.innerHTML = "Edit Templates";
 
     defT = document.createElement("input");
     defT.setAttribute("id", "templater-deft");

@@ -1,6 +1,6 @@
 {
   "name": "linkedintemplater",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "An ultra simple extension for using templates on Linkedin",
   "main": "content.js",
   "scripts": {

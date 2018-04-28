@@ -13,8 +13,6 @@ firebase.initializeApp(dbConfig);
 
 // Send anonymous logging to improve user experience
 function logActionDB(action) { // eslint-disable-line no-unused-vars
-    return true;
-    /*
     return getUid().then(({uid, newUser}) => {
         const logData = {
             uid,
@@ -33,7 +31,6 @@ function logActionDB(action) { // eslint-disable-line no-unused-vars
         // which begins when the extension is enabled
         actionNum++;
     });
-    */
 }
 
 const showOptions = () => {
