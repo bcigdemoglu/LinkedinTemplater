@@ -3,8 +3,8 @@
 
 function beautify(el, originalEl) {
   const newColor = "darkred";
-  const hexColorRE = /^rgba?\([\d]+, [\d]+, [\d]+\)/;
-  el.addClass("button-secondary-large");
+  const hexColorRE = /^rgba?\(.*\)/;
+  el.addClass(originalEl.attr('class'));
   el.css({
     "line-height": originalEl.css("line-height"),
     "height": originalEl.css("height"),
@@ -14,12 +14,13 @@ function beautify(el, originalEl) {
   });
 }
 
-function correctNames(firstName, lastName) {
+function correctNames(firstName, lastName, companyName) {
   const msg = $("#custom-message").val();
   $("#custom-message").val(
     decodeURI(msg
       .replace(/\[fn]/ig, firstName)
       .replace(/\[ln]/ig, lastName)
+      .replace(/\[cn]/ig, companyName)
     )
   );
 }

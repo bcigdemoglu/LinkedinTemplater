@@ -25,6 +25,9 @@ const button = {
   decr: () => $(`#${buttonIDs.decr}`),
 };
 
+const inviteBodyId = "custom-message";
+const inviteBody = () => $(`#${inviteBodyId}`);
+
 //declare message holder
 let defaultMessage;
 
@@ -33,7 +36,8 @@ let sel;
 
 //declare first and last name
 let firstName,
-  lastName;
+  lastName,
+  companyName;
 
 //declare numTemplates
 let numTemplates;
@@ -41,8 +45,8 @@ let numTemplates;
 function update() {
   if (getSelect() === 0) {
     //Default message
-    $("#custom-message").val(defaultMessage);
-    $("#custom-message").sendkeys(" ");
+    inviteBody().val(defaultMessage);
+    inviteBody().sendkeys(" ");
     button.defT().val(getSelect());
     return true;
   }
@@ -52,10 +56,10 @@ function update() {
     chrome.storage.sync.get("temps", function (res) {
       const temps = res.temps || [];
       if (temps[index]) {
-        $("#custom-message").val(temps[index].substr(0, 299));
-        $("#custom-message").sendkeys(" ");
+        inviteBody().val(temps[index].substr(0, 299));
+        inviteBody().sendkeys(" ");
       }
-      helpers.correctNames(firstName, lastName);
+      helpers.correctNames(firstName, lastName, companyName);
     });
   }
   setDefaultTemplate(getSelect());
@@ -119,6 +123,7 @@ function updateNames() {
   const names = nameRegexp.exec(namesSelector);
   firstName = toTitleCase(names[1]);
   lastName = toTitleCase(names[2]);
+  companyName = $("span:contains('Company Name')").eq(1).parent().children().eq(1).text();
 }
 
 function constructButtons() {
@@ -153,7 +158,7 @@ function constructButtons() {
 
   const decr = $("<div/>", {
     id: buttonIDs.decr,
-    text: "❮❮❮ Prev",
+    text: "❮❮❮ Prev Temp",
     on: {
       mousedown: () => false,
       click: () => select("dec"),
@@ -162,7 +167,7 @@ function constructButtons() {
 
   const incr = $("<div/>", {
     id: buttonIDs.incr,
-    text: "Next ❯❯❯",
+    text: "Next Temp ❯❯❯",
     on: {
       mousedown: () => false,
       click: () => select("inc"),
@@ -182,7 +187,7 @@ function constructButtons() {
 
 function runV2() {
   updateNumTemplates();
-  const body = document.getElementById("custom-message");
+  const body = document.getElementById(inviteBodyId);
   body.rows = 10;
   body.style.height = "inherit";
 
@@ -193,7 +198,7 @@ function runV2() {
   getDefaultTemplate();
 
   // If "CANCEL" is clicked
-  const cancelButton = $(".send-invite__actions button.button-secondary-large-muted");
+  const cancelButton = $("button:contains('Cancel')").first();
   cancelButton.on("click", () => {
     buttons.forEach( el => el.remove() );
     $(sel).remove();
@@ -208,7 +213,7 @@ function runV2() {
   updateNames();
 }
 
-$(document).arrive("#custom-message", function () {
+$(document).arrive(`#${inviteBodyId}`, function () {
   runV2();
 });
 

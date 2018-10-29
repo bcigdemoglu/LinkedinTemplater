@@ -17,13 +17,13 @@ function save_options(evt) {
     // Update status to let user know options were saved.
     var butnum = evt.target.number;
     var button = document.getElementsByClassName("save")[butnum];
-    button.setAttribute("class", "btn btn-md btn-success save");
+    button.setAttribute("class", "btn btn-sm btn-success save");
     var status = document.getElementsByClassName("status")[butnum];
     status.textContent = "Options saved.";
     setTimeout(function () {
       status.textContent = "";
-      button.setAttribute("class", "btn btn-md btn-primary save");
-    }, 1000);
+      button.setAttribute("class", "btn btn-sm btn-primary save");
+    }, 2000);
     helpers.logAction(`Saved template ${butnum + 1}`);
   });
 }
@@ -103,12 +103,25 @@ function getTemplateList() {
   return list;
 }
 
+const insertButtonIds = [
+  "fn", // First name
+  "ln", // Last name
+  "cn", // Company name
+];
+
 function createPage() {
   var contain = document.getElementById("templater");
   // Clone save button
   var savebtn = document.getElementById("save").cloneNode(true);
   savebtn.removeAttribute("id");
   document.getElementById("save").remove();
+  const insertButtonsElems = $.map(insertButtonIds, (insertButtonId) => {
+    const insertBtn = document.getElementById(insertButtonId).cloneNode(true);
+    insertBtn.removeAttribute("id");
+    document.getElementById(insertButtonId).remove();
+    return insertBtn;
+  });
+  /*
   // Clone add first name button
   const fnbtn = document.getElementById("fn").cloneNode(true);
   fnbtn.removeAttribute("id");
@@ -117,6 +130,11 @@ function createPage() {
   const lnbtn = document.getElementById("ln").cloneNode(true);
   lnbtn.removeAttribute("id");
   document.getElementById("ln").remove();
+  // Clone add company name button
+  const cnbtn = document.getElementById("cn").cloneNode(true);
+  cnbtn.removeAttribute("id");
+  document.getElementById("cn").remove();
+  */
   // Copy separator
   var separator = document.getElementById("sep").cloneNode(true);
   separator.removeAttribute("id");
@@ -143,12 +161,16 @@ function createPage() {
     tempText.setAttribute("rows", "9");
     tempText.setAttribute("cols", "100");
     tempText.setAttribute("style", "width: 600px !important;");
-    tempText.value =
-      "Hello [fn],\nI'd like to add you to my professional network on LinkedIn.";
+    tempText.value = "Hello [fn] [ln],\n"
+      + "I see that you work at [cn].\n"
+      + "I'd like to add you to my professional network on LinkedIn.";
     pbody.appendChild(tempText);
     pbody.appendChild(savebtn.cloneNode(true));
-    pbody.appendChild(fnbtn.cloneNode(true));
-    pbody.appendChild(lnbtn.cloneNode(true));
+    $.each(insertButtonsElems, (i, insertBtn) => {
+      pbody.appendChild(insertBtn.cloneNode(true));
+    });
+    // pbody.appendChild(lnbtn.cloneNode(true));
+    // pbody.appendChild(cnbtn.cloneNode(true));
     pbody.appendChild(status.cloneNode(true));
     pbody.appendChild(separator.cloneNode(true));
     ppri.appendChild(pbody);
@@ -158,6 +180,7 @@ function createPage() {
   const saveRA = document.getElementsByClassName("save");
   const fnbtnRA = document.getElementsByClassName("fnbtn");
   const lnbtnRA = document.getElementsByClassName("lnbtn");
+  const cnbtnRA = document.getElementsByClassName("cnbtn");
   for (var butnum = 0; butnum < numTemplates; butnum++) {
     saveRA[butnum].addEventListener("click", save_options, false);
     saveRA[butnum].number = butnum;
@@ -167,6 +190,9 @@ function createPage() {
     });
     $(lnbtnRA[butnum]).on("click", () => {
       tempText.value = tempText.value + "[ln]";
+    });
+    $(cnbtnRA[butnum]).on("click", () => {
+      tempText.value = tempText.value + "[cn]";
     });
   }
   $("#templater").css("overflow-y", "scroll");
