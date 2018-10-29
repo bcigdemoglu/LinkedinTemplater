@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>LinkedIn Template Options (v6)</title>
+    <title>LinkedIn Template Options</title>
     <script src="js/jquery-2.2.3.min.js"></script>
     <script src="js/tether.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -11,6 +11,12 @@
 </head>
 
 <body class="col container">
+  <button data-toggle="collapse" class="btn btn-outline-warning btn-block" data-target="#howToInfo">HOW TO USE TEMPLATES?</button>
+  <div class="collapse" id="howToInfo">Go to a profile page on LinkedIn.<br>
+    Click <b>CONNECT</b>.<br>
+    Click <b>ADD NOTE</b>.<br>
+    Select templates using the Arrow Buttons <b>&#10094;&#10094;&#10094;</b> and <b>&#10095;&#10095;&#10095;</b>.
+  </div>
   <p></p>
   <button class="btn btn-md btn-outline-primary export" id="export">Export</button>
   <label>
@@ -18,7 +24,7 @@
           Import <input type="file" id='import' style="display: none;" multiple>
       </span>
   </label>
-  <button class="btn btn-warning" id="tellus">Click here to rate us! We built this for free :)</button>
+  <button class="btn btn-warning" id="tellus">Click here to rate us! Thank you :)</button>
 	<p id="sep"></p>
 	<div id="templater" class="form-group"></div>
 

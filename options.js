@@ -121,20 +121,6 @@ function createPage() {
     document.getElementById(insertButtonId).remove();
     return insertBtn;
   });
-  /*
-  // Clone add first name button
-  const fnbtn = document.getElementById("fn").cloneNode(true);
-  fnbtn.removeAttribute("id");
-  document.getElementById("fn").remove();
-  // Clone add last name button
-  const lnbtn = document.getElementById("ln").cloneNode(true);
-  lnbtn.removeAttribute("id");
-  document.getElementById("ln").remove();
-  // Clone add company name button
-  const cnbtn = document.getElementById("cn").cloneNode(true);
-  cnbtn.removeAttribute("id");
-  document.getElementById("cn").remove();
-  */
   // Copy separator
   var separator = document.getElementById("sep").cloneNode(true);
   separator.removeAttribute("id");
@@ -169,8 +155,6 @@ function createPage() {
     $.each(insertButtonsElems, (i, insertBtn) => {
       pbody.appendChild(insertBtn.cloneNode(true));
     });
-    // pbody.appendChild(lnbtn.cloneNode(true));
-    // pbody.appendChild(cnbtn.cloneNode(true));
     pbody.appendChild(status.cloneNode(true));
     pbody.appendChild(separator.cloneNode(true));
     ppri.appendChild(pbody);
@@ -196,7 +180,7 @@ function createPage() {
     });
   }
   $("#templater").css("overflow-y", "scroll");
-  $("#templater").height($("#templater").children().height() * 175 / 100);
+  $("#templater").height($("#templater").children().height() * 100 / 100);
 }
 
 createPage();
