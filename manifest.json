@@ -2,7 +2,7 @@
   "name": "LinkedIn Templater",
   "short_name": "LiTempBC",
   "description": "An ultra simple extension for using templates on LinkedIn",
-  "version": "6.0.1",
+  "version": "6.1.0",
   "manifest_version": 2,
   "update_url": "https://clients2.google.com/service/update2/crx",
   "background": {
@@ -36,7 +36,8 @@
   ],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "browser_action": {
-    "default_icon": "icon128.png"
+    "default_icon": "icon128.png",
+    "default_popup": "options.html"
   },
   "icons": {
     "16": "icon16.png",

@@ -90,8 +90,10 @@ function restore_options() {
     import_templates(this);
   });
   $("#export").click(export_templates);
-  $("#tellus").click(() =>
-    location.href = "https://chrome.google.com/webstore/detail/linkedin-templater/jfhnijpfdeddconibjjjmlboahkiback/reviews");
+  $("#tellus").click(() => {
+    const templaterChromePage = "https://chrome.google.com/webstore/detail/linkedin-templater/jfhnijpfdeddconibjjjmlboahkiback/reviews";
+    chrome.tabs.create({active: true, url: templaterChromePage});
+  });
 }
 
 function getTemplateList() {
@@ -180,7 +182,11 @@ function createPage() {
     });
   }
   $("#templater").css("overflow-y", "scroll");
-  $("#templater").height($("#templater").children().height() * 100 / 100);
+  if (chrome.extension.getViews({ type: "popup" }).length > 0) {
+    $("#templater").height($("#templater").children().height() * 150 / 100);
+  } else {
+    $("#templater").height($("#templater").children().height() * 100 / 100);
+  }
 }
 
 createPage();
