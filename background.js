@@ -49,10 +49,6 @@ chrome.extension.onRequest.addListener(
   }
 );
 
-chrome.browserAction.onClicked.addListener(function (object) {
-  showOptions();
-});
-
 chrome.runtime.onInstalled.addListener(function (details) {
   if (details.reason == "install") {
     logActionDB("Installed extension");
@@ -61,3 +57,6 @@ chrome.runtime.onInstalled.addListener(function (details) {
     logActionDB("Updated extension");
   }
 });
+
+const uninstallSurveyUrl = "https://goo.gl/eRgXvg";
+chrome.runtime.setUninstallURL(uninstallSurveyUrl);
