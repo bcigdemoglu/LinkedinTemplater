@@ -20,7 +20,7 @@ V5.2:
 
 V4:
 - Updated UI for the improved LinkedIn interface.
-- Updated UI and fuctionality of Options page.
+- Updated UI and functionality of Options page.
 - Increased load speed.
 - Now generating engagement data to improve user experience.
 
